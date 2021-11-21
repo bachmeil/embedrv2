@@ -1,0 +1,14 @@
+export(
+	"dmd",
+	"dubNew",
+	"dubOptim",
+	"reload.embedr",
+	"compile",
+	"compileFile",
+	"ldc",
+	"ldc.install",
+	"embedr.configure",
+	"dmd.so_unreliable",
+	"so.create",
+	"compileFile2"
+)

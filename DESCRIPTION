@@ -1,0 +1,10 @@
+Package: embedr
+Type: Package
+Title: Embed R in D programs and vice versa
+Version: 0.82
+Date: 2020-12-02
+Author: Lance Bachmeier
+Maintainer: Lance Bachmeier <lanceb@ksu.edu>
+Description: Interoperability between D and R
+License: GPL (>= 2)
+LazyLoad: yes
