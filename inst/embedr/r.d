@@ -632,7 +632,7 @@ struct RMatrix {
 	RMatrix matrixAddition(RMatrix m, double a) {
 		auto result = RMatrix(m.rows, m.cols);
 		foreach(ii; 0..m.rows*m.cols) {
-			result.data[ii] = m.ptr[ii] + a;
+			result.data.ptr[ii] = m.ptr[ii] + a;
 		}
 		return result;
 	}
@@ -640,7 +640,7 @@ struct RMatrix {
 	RMatrix matrixSubtraction(RMatrix m, double a) {
 		auto result = RMatrix(m.rows, m.cols);
 		foreach(ii; 0..m.rows*m.cols) {
-			result.data[ii] = m.ptr[ii] - a;
+			result.data.ptr[ii] = m.ptr[ii] - a;
 		}
 		return result;
 	}
@@ -648,7 +648,7 @@ struct RMatrix {
 	RMatrix matrixSubtraction(double a, RMatrix m) {
 		auto result = RMatrix(m.rows, m.cols);
 		foreach(ii; 0..m.rows*m.cols) {
-			result.data[ii] = a - m.ptr[ii];
+			result.data.ptr[ii] = a - m.ptr[ii];
 		}
 		return result;
 	}
@@ -656,7 +656,7 @@ struct RMatrix {
 	RMatrix matrixMultiplication(RMatrix m, double a) {
 		auto result = RMatrix(m.rows, m.cols);
 		foreach(ii; 0..m.rows*m.cols) {
-			result.data[ii] = a*m.ptr[ii];
+			result.data.ptr[ii] = a*m.ptr[ii];
 		}
 		return result;
 	}
@@ -664,7 +664,7 @@ struct RMatrix {
 	RMatrix matrixDivision(RMatrix m, double a) {
 		auto result = RMatrix(m.rows, m.cols);
 		foreach(ii; 0..m.rows*m.cols) {
-			result.data[ii] = m.ptr[ii]/a;
+			result.data.ptr[ii] = m.ptr[ii]/a;
 		}
 		return result;
 	}
@@ -672,7 +672,7 @@ struct RMatrix {
 	RMatrix matrixDivision(double a, RMatrix m) {
 		auto result = RMatrix(m.rows, m.cols);
 		foreach(ii; 0..m.rows*m.cols) {
-			result.data[ii] = a/m.ptr[ii];
+			result.data.ptr[ii] = a/m.ptr[ii];
 		}
 		return result;
 	}
