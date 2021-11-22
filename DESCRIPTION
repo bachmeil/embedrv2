@@ -1,8 +1,8 @@
-Package: embedr
+Package: embedrv2
 Type: Package
 Title: Embed R in D programs and vice versa
-Version: 0.82
-Date: 2020-12-02
+Version: 1.0
+Date: 2021-11-21
 Author: Lance Bachmeier
 Maintainer: Lance Bachmeier <lanceb@ksu.edu>
 Description: Interoperability between D and R

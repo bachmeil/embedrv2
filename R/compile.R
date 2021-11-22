@@ -1,6 +1,6 @@
 # This is about the best you can do for reloading a package in R
-reload.embedr <- function() {
-	detach("package:embedr", unload = TRUE)
+reload.embedrv2 <- function() {
+	detach("package:embedrv2", unload = TRUE)
   library(embedr)
 }
 
@@ -93,7 +93,7 @@ dubNewShared <- function() {
 	dub.sdl <- paste0('name ""
 description ""
 authors ""
-copyright "Copyright ', format(Sys.Date(), "%Y"), ', "
+copyright "Copyright ', format(Sys.Date(), "%Y"), '"
 license ""
 versions "inline"
 targetType "dynamicLibrary"
@@ -165,7 +165,7 @@ compileSharedLibrary <- function(filename, deps="", other="", rebuild=FALSE, ran
 
 # This is the default for compiling shared libraries
 # Boilerplate should be handled by createRLibrary on the D side
-compileFile <- function(filename, rebuild=FALSE) {
+compileShared <- function(filename, rebuild=FALSE) {
 	
 	libname <- tools::file_path_sans_ext(filename)
 	if (!startsWith(libname, "lib")) {
@@ -191,6 +191,7 @@ paste(readLines(filename), collapse="\n"))
 	}
 	out.dub <- system(cmd.dub, intern=TRUE)
 	print(out.dub)
+	dyn.load(paste0(libname, ".so"))
 }
 
 # I'll probably move to something like this for manual compilation
