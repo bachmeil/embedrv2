@@ -538,8 +538,7 @@ struct RMatrix {
     alias mat this;
   }
 
-  // Normally this will be a matrix allocated inside R, and as such, it will already be protected.
-  // Nonetheless you have the option to protect by setting the second argument to false.
+  /* Normally this will be a matrix allocated inside R, and as such, it will already be protected. Nonetheless you have the option to protect by setting the second argument to false. */
   this(Robj rm, bool u=false) {
     enforce(isMatrix(rm), "Constructing RMatrix from something not a matrix"); 
     enforce(isNumeric(rm), "Constructing RMatrix from something that is not numeric");
@@ -599,6 +598,84 @@ struct RMatrix {
       ptr[0..m.rows*m.cols] = m.ptr[0..m.rows*m.cols];
     }
   }
+
+  RMatrix opBinary(string op)(double a) {
+    static if(op == "+") {
+      return matrixAddition(this, a);
+    }
+    static if(op == "-") {
+      return matrixSubtraction(this, a);
+    }
+    static if(op == "*") {
+      return matrixMultiplication(this, a);
+    }
+    static if(op == "/") {
+      return matrixDivision(this, a);
+    }
+  }
+
+  RMatrix opBinaryRight(string op)(double a) {
+    static if(op == "+") {
+      return matrixAddition(this, a);
+    }
+    static if(op == "-") {
+      return matrixSubtraction(a, this);
+    }
+    static if(op == "*") {
+      return matrixMultiplication(this, a);
+    }
+    static if(op == "/") {
+      return matrixDivision(a, this);
+    }
+  }
+
+	RMatrix matrixAddition(RMatrix m, double a) {
+		auto result = RMatrix(m.rows, m.cols);
+		foreach(ii; 0..m.rows*m.cols) {
+			result.data[ii] = m.ptr[ii] + a;
+		}
+		return result;
+	}
+
+	RMatrix matrixSubtraction(RMatrix m, double a) {
+		auto result = RMatrix(m.rows, m.cols);
+		foreach(ii; 0..m.rows*m.cols) {
+			result.data[ii] = m.ptr[ii] - a;
+		}
+		return result;
+	}
+
+	RMatrix matrixSubtraction(double a, RMatrix m) {
+		auto result = RMatrix(m.rows, m.cols);
+		foreach(ii; 0..m.rows*m.cols) {
+			result.data[ii] = a - m.ptr[ii];
+		}
+		return result;
+	}
+
+	RMatrix matrixMultiplication(RMatrix m, double a) {
+		auto result = RMatrix(m.rows, m.cols);
+		foreach(ii; 0..m.rows*m.cols) {
+			result.data[ii] = a*m.ptr[ii];
+		}
+		return result;
+	}
+
+	RMatrix matrixDivision(RMatrix m, double a) {
+		auto result = RMatrix(m.rows, m.cols);
+		foreach(ii; 0..m.rows*m.cols) {
+			result.data[ii] = m.ptr[ii]/a;
+		}
+		return result;
+	}
+
+	RMatrix matrixDivision(double a, RMatrix m) {
+		auto result = RMatrix(m.rows, m.cols);
+		foreach(ii; 0..m.rows*m.cols) {
+			result.data[ii] = a/m.ptr[ii];
+		}
+		return result;
+	}
 
   Robj robj() {
     return data.robj;
