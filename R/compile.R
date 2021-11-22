@@ -85,10 +85,10 @@ lflags "', libr, '" "', rinside, '"')
 }
 
 dubNewShared <- function() {
-	dcode <- paste0(find.package("embedr")[1], "/embedr/r.d")
+	dcode <- paste0(find.package("embedrv2")[1], "/embedr/r.d")
 	libr <- system("locate -b '\\libR.so' -l 1", intern=TRUE)
 	dir.create("src")
-	file.copy(paste0(find.package("embedr")[1], "/embedr/r.d"), "src/", overwrite=FALSE)
+	file.copy(dcode, "src/", overwrite=FALSE)
 	
 	dub.sdl <- paste0('name ""
 description ""
