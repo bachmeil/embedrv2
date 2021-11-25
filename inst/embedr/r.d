@@ -925,10 +925,10 @@ struct RIntVector {
 }
 
 /* MAYBE: Allow custom content in the init/unload functions.
- * I'm not sure at this time why you'd want to do that.
+ * I can't think of a use case for that at this time.
  * This has always been enough for me. Initializing other stuff
  * like random number generators should be done by the user. */
-string createRLibrary(string name)() {
+string addRBoilerplate(string name)() {
 	string libname;
 	if (name.startsWith("lib")) {
 		libname = name;
@@ -950,7 +950,46 @@ export extern(C) {
 	return result;
 }
 
-string createRFunction(alias f)() {
+/* This allows @extern_R as a UDA, since we don't have extern (R). */
+enum extern_R;
+
+/* Export the entire module. I don't know how to do this without creating
+ * a temporary function. */
+string exportRModule() {
+return `string _temporary_export_function_() {
+  import std.string;
+  string result;
+  foreach(f; __traits(allMembers, mixin(__MODULE__))) {
+    static if(__traits(isStaticFunction, __traits(getMember, mixin(__MODULE__), f))) {
+      static if(!f.startsWith("_temporary_") & !f.startsWith("R_init_") & !f.startsWith("R_unload_")) {
+        result ~= "mixin(\"mixin(exportRFunction!" ~ f ~ ");\");\n";
+      }
+    }
+  }
+  return result;
+}
+mixin(_temporary_export_function_());
+`;
+}
+
+/* Export the @extern_R functions in the current module. I don't know 
+ * how to do this without creating a temporary function. */
+string exportRFunctions() {
+  return `
+void _temporary_export_function2_() {
+  import std.traits;
+  foreach(f; __traits(allMembers, mixin(__MODULE__))) {
+    if(hasUDA!(__traits(getMember, mixin(__MODULE__), f), extern_R)) {
+      pragma(msg, f);
+      mixin("mixin(exportRFunction!" ~ f ~");\n");
+    }
+  }
+}
+`;
+}
+
+/* Export a single function to R. */
+string exportRFunction(alias f)() {
 	string functionName = __traits(identifier, f);
 	string[] sig;
 	string[] conversions;
@@ -960,7 +999,7 @@ string createRFunction(alias f)() {
 		conversions ~= convertParameter(t.stringof, ii);
 		dcallParameters ~= "par" ~ ii.to!string;
 	}
-	string signature = "extern(C) Robj " ~ functionName ~ "(" ~ sig.join(", ") ~ ")";
+	string signature = "export extern(C) Robj " ~ functionName ~ "(" ~ sig.join(", ") ~ ")";
 	string conversionCode = conversions.join(";\n");
 	string dcall = functionName ~ "(" ~ dcallParameters.join(", ") ~ ").robj";
 	return signature ~ " {\n" ~ conversionCode ~ ";\n  return " ~ dcall ~ ";\n}";
