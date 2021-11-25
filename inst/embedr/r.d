@@ -976,15 +976,17 @@ mixin(_temporary_export_function_());
  * how to do this without creating a temporary function. */
 string exportRFunctions() {
   return `
-void _temporary_export_function2_() {
+string _temporary_export_function2_() {
   import std.traits;
+  string result;
   foreach(f; __traits(allMembers, mixin(__MODULE__))) {
-    if(hasUDA!(__traits(getMember, mixin(__MODULE__), f), extern_R)) {
-      pragma(msg, f);
-      mixin("mixin(exportRFunction!" ~ f ~");\n");
+    static if(hasUDA!(__traits(getMember, mixin(__MODULE__), f), extern_R)) {
+      result ~= "mixin(\"mixin(exportRFunction!" ~ f ~");\");\n";
     }
   }
+  return result;
 }
+mixin(_temporary_export_function2_());
 `;
 }
 
