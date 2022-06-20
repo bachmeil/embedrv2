@@ -52,7 +52,9 @@ library(embedrv2)
 dubNewShared()
 ```
 
-This creates a dub.sdl file inside the current working directory that holds all the information needed to do the build. Save this code in a file named irf.d:
+This creates a dub.sdl file inside the current working directory that holds all the information needed to do the build. Open dub.sdl and make any changes you want. These could include adding dependencies on packages on code.dlang.org. At a minimum you'll need to add a package name that follows the dub rules. Change the first line to say `name "irf"`.
+
+Save this code in a file in the root of the project (not the src subdirectory, but the same directory that holds dub.sdl) named irf.d:
 
 ```
 @extern_R ar1irf(double alpha, double shock, int h) {
@@ -80,6 +82,13 @@ Return to R and run the following:
 compileShared("irf")
 dyn.load("libirf.so")
 .Call("ar1irf", 0.6, 1.0, 12)
+```
+
+That should give you this output:
+
+```
+ [1] 1.000000000 0.600000000 0.360000000 0.216000000 0.129600000 0.077760000
+ [7] 0.046656000 0.027993600 0.016796160 0.010077696 0.006046618 0.003627971
 ```
 
 Some explanation: `@extern_R ar1irf` declares `ar1irf` as a function with R "linkage". It creates a C function of the same name that takes and returns arguments R can understand. That function calls your D function and returns a converted version of the output to R.
