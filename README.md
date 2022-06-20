@@ -28,13 +28,13 @@ The original version of embedr was released in 2013 or 2014. At that time, Dub h
 
 A second big change is that I had time to figure out D's compile time metaprogramming. The end result is that you no longer have to write wrappers for your D functions. For instance, you don't have to convert between the R and D data types. You create a file with D functions. You call `exportRFunction`, `exportRFunctions`, or `exportRModule` as a mixin and D handles the data passing for you. There's now a `@export_R` UDA that functions as `export (R)` would if it existed.
 
-For D programs embedding R, the installation is much simplified, due to the inclusion of the RInsideC functionality in RInside.
+**Please note that as of June 2022, I have not done any work related to D programs that embed an R interpreter.** You should continue to use the original embedr for that. That is next on my list. Installation is greatly simplified due to the inclusion of RInsideC functionality in RInside. The final piece I have not figured out is the best way to hold data persistently inside R without lots of boilerplate or clumsy syntax. Most likely this will take the form of creating structs on the D side that pass the data to R on construction, hold information about accessing the R data, and delete the R data on destruction. I think that's going to require reference counting, but would be happy to learn otherwise.
 
-Things are different on the Windows side too. WSL is now stable and available on the computers of almost all potential Windows users. VS Code has strong support for D, R, and WSL. That's good, because it means the lack of a Windows maintainer is no longer a big deal - just run your program in WSL if you're using Windows. That wasn't possible in 2014. VS Code wasn't released until 2015. WSL wasn't released until 2016. I stopped new development on embedr in early 2018 due to a change in my job, so Windows is a very different beast today than when I was actively working on embedr.
+Things are different on the Windows side, too. I spent countless hours playing with DLLs and import libraries and Visual Studio and all that jazz. WSL is stable and available on almost all Windows computers used for data analysis. VS Code has strong support for D, R, and WSL. The lack of a Windows maintainer is not a big deal for embedrv2. I didn't have that option when I started this project.
 
-I also moved everything from Bitbucket (which these days is not the most pleasant experience) to Github. You can use Github discussions to ask basic questions.
+Finally, I've moved all development from Bitbucket to Github. There was a time that Bitbucket was the cloud version control system of choice. That ceased to be the case several years ago. The move to Github means you can use Github discussions to ask basic questions.
 
-Overall, the experience should feel much cleaner, from installation to usage.
+Overall, the experience should be much cleaner, from installation to usage.
 
 # Example
 
@@ -45,14 +45,14 @@ library(devtools)
 install_github("bachmeil/embedrv2")
 ```
 
-Create a new Dub project inside R:
+Then create a new Dub project:
 
 ```
 library(embedrv2)
 dubNewShared()
 ```
 
-This handles all the dependencies trivially, since we're working inside R. It creates a new project and a blank dub.sdl.
+This creates a dub.sdl file inside the current working directory that holds all the information needed to do the build. Save this code in a file named irf.d:
 
 ```
 @extern_R ar1irf(double alpha, double shock, int h) {
@@ -74,7 +74,7 @@ double last(double[] v) {
 }
 ```
 
-From inside R:
+Return to R and run the following:
 
 ```
 compileShared("irf")
@@ -84,7 +84,7 @@ dyn.load("libirf.so")
 
 Some explanation: `@extern_R ar1irf` declares `ar1irf` as a function with R "linkage". It creates a C function of the same name that takes and returns arguments R can understand. That function calls your D function and returns a converted version of the output to R.
 
-`mixin(exportRFunctions)` tells D to create R versions of all the functions in the current file preceded by `extern_R`. That allows us to include helper functions like `last` that are not exported.
+`mixin(exportRFunctions)` tells D to create R versions of all the functions in the current file preceded by `extern_R`. That allows us to include helper functions like `last` that are not exported to R.
 
 You can export multiple functions to R by putting them inside a block, like this:
 
