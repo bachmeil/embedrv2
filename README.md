@@ -107,3 +107,25 @@ function 3
 ```
 
 Alternatively, you can use `mixin(exportRModule)` to export all functions in the current file. This is equivalent to putting all of the functions inside a `@extern_R` block and calling `mixin(exportRFunctions)`. `mixin(exportRModule)` is normally not what you'd want to do because you can't include any helper functions.
+
+# Interoperable types
+
+You can use the following data types as arguments to functions that will be called from R:
+
+- double
+- int
+- long
+- ulong
+- string
+- string[]
+- double[]
+- NamedList (An R list with named elements)
+- RMatrix (An R matrix of doubles)
+- RVector (An R vector of doubles)
+- RIntVector (An R vector of ints)
+
+You can use the usual indexing operations with vectors and matrices.
+
+I use the Gretl library for matrix and vector operations. That is irrelevant for the purposes of embedrv2; the goal is to facilitate interoperability, not to provide a bunch of D functionality that is not specific to programs that will run inside R.
+
+The NamedList is used to *receive* a list from R. It is immediately converted to a D struct. It is *not intended to be passed back to R*. If you want to create a list to pass back to R, use an RList instead.
