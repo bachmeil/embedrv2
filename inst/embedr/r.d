@@ -676,6 +676,10 @@ struct RMatrix {
 		}
 		return result;
 	}
+  
+  RMatrix sameSize() {
+    return RMatrix(rows, cols);
+  }
 
   Robj robj() {
     return data.robj;
