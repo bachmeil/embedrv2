@@ -135,3 +135,7 @@ The NamedList is used to *receive* a list from R. It is immediately converted to
 - libhello.d: Basic usage
 - libmirexample.d: Example calling Mir to demonstrate adding code.dlang.org dependencies
 - listex.d: Using lists
+
+# Limitations
+
+The goal of embedrv2 is to facilitate interoperability between D and R. That means support for passing data between the two languages and then accessing/modifying the data. No attempt is made to provide matrix algebra, random number generation, etc. That should be handled by other packages.
