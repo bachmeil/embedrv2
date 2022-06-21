@@ -49,10 +49,10 @@ Then create a new Dub project:
 
 ```
 library(embedrv2)
-dubNewShared()
+dubNewShared("irf")
 ```
 
-This creates a dub.sdl file inside the current working directory that holds all the information needed to do the build. Open dub.sdl and make any changes you want. These could include adding dependencies on packages on code.dlang.org. At a minimum you'll need to add a package name that follows the dub rules. Change the first line to say `name "irf"`.
+This creates a dub.sdl file inside the current working directory that holds all the information needed to do the build. Open dub.sdl and make any changes you want. These could include adding dependencies on packages on code.dlang.org. If you supply an argument, it uses that as the name of the Dub package, with the added benefit that it will check that it's a valid Dub package name.
 
 Save this code in a file in the root of the project (not the src subdirectory, but the same directory that holds dub.sdl) named irf.d:
 
