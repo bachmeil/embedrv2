@@ -129,3 +129,9 @@ You can use the usual indexing operations with vectors and matrices.
 I use the Gretl library for matrix and vector operations. That is irrelevant for the purposes of embedrv2; the goal is to facilitate interoperability, not to provide a bunch of D functionality that is not specific to programs that will run inside R.
 
 The NamedList is used to *receive* a list from R. It is immediately converted to a D struct. It is *not intended to be passed back to R*. If you want to create a list to pass back to R, use an RList instead.
+
+# Examples
+
+- libhello.d: Basic usage
+- libmirexample.d: Example calling Mir to demonstrate adding code.dlang.org dependencies
+- listex.d: Using lists
