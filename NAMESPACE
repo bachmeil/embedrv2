@@ -1,6 +1,5 @@
 export(
 	"compileShared",
-	"dubNew",
 	"dubNewShared",
 	"reload.embedrv2"
 )
