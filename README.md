@@ -136,6 +136,7 @@ The NamedList is used to *receive* a list from R. It is immediately converted to
 - libmirexample.d: Example calling Mir to demonstrate adding code.dlang.org dependencies
 - listex.d: Using lists
 - constants.d: Calling R API constants
+- matrixexamples.d: Basic matrix operations
 
 # Limitations
 
