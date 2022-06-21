@@ -132,6 +132,8 @@ The NamedList is used to *receive* a list from R. It is immediately converted to
 
 # Examples
 
+You can find examples in inst/examples. So far I have
+
 - libhello.d: Basic usage
 - libmirexample.d: Example calling Mir to demonstrate adding code.dlang.org dependencies
 - listex.d: Using lists
