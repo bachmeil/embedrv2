@@ -143,6 +143,10 @@ bool isInteger(Robj x) {
   return to!bool(Rf_isInteger(x));
 }
 
+bool isLogical(Robj x) {
+  return to!bool(Rf_isLogical(x));
+}
+
 // RList is for passing data from D to R in a list
 // It's the only way to pass multiple values back to R
 struct RList {
@@ -243,6 +247,18 @@ struct RList {
     put(v.robj, name);
   }
   
+  void opIndexAssign(int[] vec, string name) {
+    put(vec.robj, name);
+  }
+  
+  void opIndexAssign(bool b, string name) {
+    opIndexAssign([b], name);
+  }
+  
+  void opIndexAssign(bool[] vec, string name) {
+    put(vec.robj, name);
+  }
+
   bool empty() {
     return counter == length;
   }
@@ -405,8 +421,16 @@ Robj robj(double[] v) {
   return RVector(v).robj;
 }
 
+Robj robj(bool[] v) {
+  return RBoolVector(v).robj;
+}
+
 Robj robj(int x) {
   return Rf_ScalarInteger(x);
+}
+
+Robj robj(int[] x) {
+  return RIntVector(x).robj;
 }
 
 Robj robj(string s) {
@@ -924,11 +948,110 @@ struct RIntVector {
   }
 }
 
-/* MAYBE: Allow custom content in the init/unload functions.
- * I can't think of a use case for that at this time.
- * This has always been enough for me. Initializing other stuff
- * like random number generators should be done by the user. */
-string addRBoilerplate(string name)() {
+struct RBoolVector {
+  ProtectedRObject data;
+  ulong length;
+  int * ptr;
+
+  this(int r) {
+    Robj temp;
+    Rf_protect(temp = Rf_allocVector(10, r));
+    data = ProtectedRObject(temp, true);
+    length = r;
+    ptr = LOGICAL(temp);
+  }
+
+  this(int[] v) {
+    Robj temp;
+    Rf_protect(temp = Rf_allocVector(10, to!int(v.length)));
+    data = ProtectedRObject(temp);
+    length = v.length;
+    ptr = LOGICAL(temp);
+    foreach(ii, val; v) {
+			this[ii.to!int] = val.to!bool;
+    }
+  }
+
+  this(bool[] v) {
+    Robj temp;
+    Rf_protect(temp = Rf_allocVector(10, to!int(v.length)));
+    data = ProtectedRObject(temp);
+    length = v.length;
+    ptr = LOGICAL(temp);
+    foreach(ii, val; v) {
+			this[ii.to!int] = val.to!bool;
+    }
+  }
+
+  this(Robj rv, bool u=false) {
+    enforce(isVector(rv), "In RBoolVector constructor: Cannot convert non-vector R object to RVector");
+    enforce(isLogical(rv), "In RBoolVector constructor: Cannot convert non-logical R object to RVector");
+    data = ProtectedRObject(rv);
+    length = rv.length;
+    ptr = LOGICAL(rv);
+  }
+
+  bool opIndex(int obs) {
+    enforce(obs < length, "Index out of range: index on RBoolVector is too large");
+    return ptr[obs].to!bool;
+  }
+
+  void opIndexAssign(bool val, int obs) {
+    enforce(obs < length, "Index out of range: index on RBoolVector is too large");
+    ptr[obs] = val.to!int;
+  }
+
+  void opAssign(bool[] v) {
+    foreach(ii, val; v) {
+      this[ii.to!int] = val;
+    }
+  }
+
+  RBoolVector opSlice(int i, int j) {
+    enforce(j < length, "Index out of range: index on RBoolVector slice is too large");
+    enforce(i < j, "First index on RBoolVector slice has to be less than the second index");
+    RBoolVector result;
+    result.data = data;
+    result.length = j-i;
+    result.ptr = &ptr[i];
+    return result;
+  }
+
+  bool[] array() {
+    bool[] result;
+    result.reserve(length);
+    foreach(val; this) {
+      result ~= val.to!bool;
+    }
+    return result;
+  }
+
+  void print() {
+    foreach(val; this) {
+      writeln(val.to!bool);
+    }
+  }
+
+  bool empty() {
+    return length == 0;
+  }
+
+  bool front() {
+    return this[0].to!bool;
+  }
+
+  void popFront() {
+    ptr = &ptr[1];
+    length -= 1;
+  }
+  
+  Robj robj() {
+    return data.robj;
+  }
+}
+
+/* MAYBE: Allow custom content in the init/unload functions. */
+string addRBoilerplate(string name)(string initCode="", string exitCode="") {
 	string libname;
 	if (name.startsWith("lib")) {
 		libname = name;
@@ -940,9 +1063,11 @@ struct DllInfo;
 export extern(C) {
   void R_init_" ~ libname ~ "(DllInfo * info) {
     Runtime.initialize();
+" ~ initCode ~ "
   }
   
   void R_unload_" ~ libname ~ "(DllInfo * info) {
+" ~ exitCode ~ "
     Runtime.terminate();
   }
 }

@@ -22,7 +22,7 @@ lflags "', libr, '"')
 
 # This is the default for compiling shared libraries
 # Boilerplate should be handled by createRLibrary on the D side
-compileShared <- function(filename, rebuild=FALSE) {
+compileShared <- function(filename, rebuild=FALSE, initCode="", exitCode="") {
 	
 	libname <- tools::file_path_sans_ext(filename)
 	if (!startsWith(libname, "lib")) {
@@ -36,7 +36,7 @@ compileShared <- function(filename, rebuild=FALSE) {
 	code <- paste0(
 'module ', libname, ';
 import embedr.r;
-mixin(addRBoilerplate!"', tools::file_path_sans_ext(filename), '");
+mixin(addRBoilerplate!"', tools::file_path_sans_ext(filename), '"(`', initCode, '`, `', exitCode, '`));
 ',
 paste(readLines(filename), collapse="\n"))
 
