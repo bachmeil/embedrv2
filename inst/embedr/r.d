@@ -1124,7 +1124,7 @@ struct RBoolVector {
     length = v.length;
     ptr = LOGICAL(temp);
     foreach(ii, val; v) {
-			this[ii.to!int] = val.to!bool;
+			ptr[ii.to!int] = val.to!int;
     }
   }
 
