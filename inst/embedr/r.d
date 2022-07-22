@@ -700,6 +700,10 @@ struct RMatrix {
 		}
 		return result;
 	}
+  
+  RMatrix sameSize() {
+    return RMatrix(rows, cols);
+  }
 
   Robj robj() {
     return data.robj;
@@ -721,6 +725,147 @@ RMatrix dup(RMatrix rm) {
   RMatrix result = RMatrix(Rf_protect(Rf_duplicate(rm.robj)), true);
   return result;
 }
+
+struct MatrixIndex {
+  int rows;
+  int cols;
+  int currentRow=0;
+  int currentCol=0;
+  
+  this(RMatrix rm) {
+    rows = rm.rows;
+    cols = rm.cols;
+  }
+
+  bool empty() {
+    return currentCol >= cols;
+  }
+
+  int[2] front() {
+    return [currentRow, currentCol];
+  }
+
+  void popFront() {
+    if (currentRow >= rows-1) {
+      currentCol += 1;
+      currentRow = 0;
+    } else {
+      currentRow += 1;
+    }
+  }
+}  
+
+struct TransposeIndex {
+  int rows;
+  int cols;
+  int currentRow=0;
+  int currentCol=0;
+  
+  this(RMatrix rm) {
+    rows = rm.rows;
+    cols = rm.cols;
+  }
+
+  bool empty() {
+    return currentCol >= cols;
+  }
+
+  int[2] front() {
+    return [currentCol, currentRow];
+  }
+
+  void popFront() {
+    if (currentRow >= rows-1) {
+      currentCol += 1;
+      currentRow = 0;
+    } else {
+      currentRow += 1;
+    }
+  }
+}  
+
+struct DiagonalIndex {
+  int rows;
+  int cols;
+  int currentRow=0;
+  int currentCol=0;
+  
+  this(RMatrix rm) {
+    rows = rm.rows;
+    cols = rm.cols;
+  }
+
+  bool empty() {
+    return (currentCol >= cols) | (currentRow >= rows);
+  }
+
+  int[2] front() {
+    return [currentRow, currentCol];
+  }
+
+  void popFront() {
+    currentCol += 1;
+    currentRow += 1;
+  }
+}  
+
+struct BelowDiagonalIndex {
+  int rows;
+  int cols;
+  int currentRow=1;
+  int currentCol=0;
+  
+  this(RMatrix rm) {
+    rows = rm.rows;
+    cols = rm.cols;
+  }
+
+  bool empty() {
+    return currentCol >= cols;
+  }
+
+  int[2] front() {
+    return [currentRow, currentCol];
+  }
+
+  void popFront() {
+    if (currentRow >= rows) {
+      currentCol += 1;
+      currentRow = currentCol+1;
+    } else {
+      currentRow += 1;
+    }
+  }
+}  
+
+struct AboveDiagonalIndex {
+  int rows;
+  int cols;
+  int currentRow=0;
+  int currentCol=1;
+  
+  this(RMatrix rm) {
+    rows = rm.rows;
+    cols = rm.cols;
+  }
+
+  bool empty() {
+    return currentCol >= cols;
+  }
+
+  int[2] front() {
+    return [currentRow, currentCol];
+  }
+
+  void popFront() {
+    if (currentRow >= currentCol-1) {
+      currentCol += 1;
+      currentRow = 0;
+    } else {
+      currentRow += 1;
+    }
+  }
+}  
 
 struct RVector {
   int rows;
@@ -1127,7 +1272,7 @@ string exportRFunction(alias f)() {
 		dcallParameters ~= "par" ~ ii.to!string;
 	}
 	string signature = "export extern(C) Robj " ~ functionName ~ "(" ~ sig.join(", ") ~ ")";
-	string conversionCode = conversions.join(";\n");
+  string conversionCode = conversions.join(";\n");
 	string dcall = functionName ~ "(" ~ dcallParameters.join(", ") ~ ").robj";
 	return signature ~ " {\n" ~ conversionCode ~ ";\n  return " ~ dcall ~ ";\n}";
 }
@@ -1150,7 +1295,7 @@ string convertParameter(string t, long _ii) {
 		case "double[]":
 			rhs = invar ~ ".array()";
 			break;
-		case "NamedList":
+		case "RList":
 		case "RMatrix":
 		case "RVector":
 		case "RIntVector":
